@@ -1,0 +1,41 @@
+# VS Code
+.vscode/
+
+# R session files
+.Rhistory
+.RData
+.Ruserdata
+
+# secrets
+.env
+.env.*
+secrets.R
+secrets.r
+
+# ignore project data folders
+intermediate/
+source/
+
+# outputs
+output/
+results/
+figures/
+tables/
+logs/
+
+# archives
+*.zip
+*.gz
+*.7z
+*.tar
+
+# binary data
+*.rds
+*.Rds
+*.rda
+*.RData
+*.dta
+*.sas7bdat
+*.parquet
+*.feather
+*.fst
