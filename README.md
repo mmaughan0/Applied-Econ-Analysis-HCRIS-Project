@@ -24,6 +24,19 @@ HOSP10_2022_nmrc – all numeric variables tied to that cost report
 
 #5 Put these in the source folder of the repo
 
+###########################################################################
+#FOLDER STRUCTURE
+##########################################################################
+
+/Source - these are unprocessed by any code in this repo. Both the data downloads above and the data I provide in my repo are here
+/Intermediate - This is after processing but before outputs. These you will need to produce yourself from the code - as they are also too big to include 
+/Code 
+00_setup_file - this establishes directories
+01_HCRIS_inspect - ensures data uploaded with correct fields, formats etc
+02_import_cleanrpt - this integrates an inner join with only hospitals from my list and from the raw files I downloaded. ALso does basic data cleaning
+03_working_rpt - this is the workhorse code file - all analysis and outputs done here
+
+
 #######################################
 DATA from REPO
 ######################################
