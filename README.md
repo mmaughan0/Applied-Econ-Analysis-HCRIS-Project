@@ -1,22 +1,37 @@
-# HCRIS Analysis Project
+########################################################
+#Exploratory Analysis of Payer Estimatipon Mehthods
+#########################################################
 
-This project imports HCRIS hospital cost report data, extracts selected variables, and builds an analytic file for downstream analysis.
 
-## Folder structure
 
-- `code/` — scripts for importing, cleaning, and constructing the analytic file
-- `source/` — raw source data files
-- `reference docs/` — HCRIS documentation and supporting files
-- `intermediate/` — temporary or intermediate constructed datasets
-- `output/` — final analytic files and outputs
+##########################################################
+DATA Downloads
+#########################################################
 
-## Workflow
 
-1. Place raw HCRIS files in `source/`
-2. Run import and cleaning scripts from `code/`
-3. Save intermediate files in `intermediate/`
-4. Save final outputs in `output/`
+#Go to the following website to download files - they are not on REPO!
+https://www.cms.gov/data-research/statistics-trends-and-reports/cost-reports/hospital-2552-2010-form
+Scroll down to "Downloads" and click on Hospital 2010 Documentation
 
-## Notes
+You will find many of the files on this repo in there - only 3 you will not find that you need to input
 
-Raw source data should generally not be uploaded to GitHub. The repository should mainly contain code, documentation, and possibly small final outputs.
+HOSP10_2022_rpt – this is your master primary key is the cost report number, NOT the hospital provider number
+HOSP10_2022_alpha – all alphabetical variables tied to that cost report
+HOSP10_2022_nmrc – all numeric variables tied to that cost report
+
+#######################################
+DATA from REPO
+######################################
+
+There are in addition 2 files that I have provided in the repo you will need that are relatively small 
+-analytical_sample.csv - this corresponds to a list of hospitals after applying inclusion/exclusion criteria - It greatly cuts down on size and helps workflow, hence it is early in my analytical workflow
+
+-State_Price_Estimation_ExAnte.csv - This is the motivating reason for this analysis - to compare raw data that we are procesing to work already done
+
+The gitignore file ignores the rest of source, BUT it brings in these. These were already synthesized by me and you cannot find them publicly
+
+#################################################################
+OUTPUTS FOR REPRODUCIBILITY
+################################################################
+
+I am asking to reproduce the 4 scatterplots found in the output file - might be helpful to append your initials so you can compare yours to the original

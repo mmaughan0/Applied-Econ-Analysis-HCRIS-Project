@@ -1,4 +1,3 @@
-## normalized rpt table, plus nmrc and alpha tables
 source("code/00_setup_file.R")
 
 library(data.table)
@@ -6,9 +5,10 @@ library(data.table)
 ## ---------------------------
 ## file paths
 ## ---------------------------
-rpt_file   <- file.path(source_dir, "HOSP10_2022_rpt.csv")
-nmrc_file  <- file.path(source_dir, "HOSP10_2022_nmrc.csv")
-alpha_file <- file.path(source_dir, "HOSP10_2022_alpha.csv")
+rpt_file    <- file.path(source_dir, "HOSP10_2022_rpt.csv")
+nmrc_file   <- file.path(source_dir, "HOSP10_2022_nmrc.csv")
+alpha_file  <- file.path(source_dir, "HOSP10_2022_alpha.csv")
+sample_file <- file.path(source_dir, "analytical_sample.csv")
 
 ## ---------------------------
 ## official column names
@@ -51,24 +51,18 @@ alpha_names <- c(
 )
 
 ## ---------------------------
-## import raw files with no headers
+## import raw files
 ## ---------------------------
 rpt   <- fread(rpt_file, header = FALSE)
 nmrc  <- fread(nmrc_file, header = FALSE)
 alpha <- fread(alpha_file, header = FALSE)
 
+## analytical sample should have headers
+sample <- fread(sample_file)
+
 ## ---------------------------
 ## quick checks
 ## ---------------------------
-cat("RPT columns in raw file:   ", ncol(rpt),   "\n")
-cat("RPT columns expected:      ", length(rpt_names), "\n\n")
-
-cat("NMRC columns in raw file:  ", ncol(nmrc),  "\n")
-cat("NMRC columns expected:     ", length(nmrc_names), "\n\n")
-
-cat("ALPHA columns in raw file: ", ncol(alpha), "\n")
-cat("ALPHA columns expected:    ", length(alpha_names), "\n\n")
-
 stopifnot(ncol(rpt)   == length(rpt_names))
 stopifnot(ncol(nmrc)  == length(nmrc_names))
 stopifnot(ncol(alpha) == length(alpha_names))
@@ -81,7 +75,7 @@ setnames(nmrc, nmrc_names)
 setnames(alpha, alpha_names)
 
 ## ---------------------------
-## type conversions: rpt
+## type conversions
 ## ---------------------------
 date_vars <- c("FI_CREAT_DT", "FI_RCPT_DT", "FY_BGN_DT", "FY_END_DT", "NPR_DT", "PROC_DT")
 for (v in date_vars) {
@@ -91,38 +85,77 @@ for (v in date_vars) {
 rpt[, PRVDR_NUM := as.character(PRVDR_NUM)]
 rpt[, RPT_REC_NUM := as.numeric(RPT_REC_NUM)]
 
-## ---------------------------
-## type conversions: nmrc
-## ---------------------------
-nmrc[, RPT_REC_NUM := as.numeric(RPT_REC_NUM)]
-nmrc[, WKSHT_CD := as.character(WKSHT_CD)]
-nmrc[, LINE_NUM := as.character(LINE_NUM)]
-nmrc[, CLMN_NUM := as.character(CLMN_NUM)]
-nmrc[, ITM_VAL_NUM := as.numeric(ITM_VAL_NUM)]
+nmrc[, `:=`(
+  RPT_REC_NUM = as.numeric(RPT_REC_NUM),
+  WKSHT_CD = as.character(WKSHT_CD),
+  LINE_NUM = as.character(LINE_NUM),
+  CLMN_NUM = as.character(CLMN_NUM),
+  ITM_VAL_NUM = as.numeric(ITM_VAL_NUM)
+)]
+
+alpha[, `:=`(
+  RPT_REC_NUM = as.numeric(RPT_REC_NUM),
+  WKSHT_CD = as.character(WKSHT_CD),
+  LINE_NUM = as.character(LINE_NUM),
+  CLMN_NUM = as.character(CLMN_NUM),
+  ALPHNMRC_ITM_TXT = as.character(ALPHNMRC_ITM_TXT)
+)]
 
 ## ---------------------------
-## type conversions: alpha
+## prep analytical sample for join
 ## ---------------------------
-alpha[, RPT_REC_NUM := as.numeric(RPT_REC_NUM)]
-alpha[, WKSHT_CD := as.character(WKSHT_CD)]
-alpha[, LINE_NUM := as.character(LINE_NUM)]
-alpha[, CLMN_NUM := as.character(CLMN_NUM)]
-alpha[, ALPHNMRC_ITM_TXT := as.character(ALPHNMRC_ITM_TXT)]
+## assumes the analytical sample has a variable named CCN
+sample[, CCN := as.character(CCN)]
+
+## optional: if your CCNs should always be 6 digits, pad both sides
+rpt[, PRVDR_NUM := sprintf("%06s", PRVDR_NUM)]
+sample[, CCN := sprintf("%06s", CCN)]
+
+## keep only sample rows with a nonmissing CCN
+sample <- sample[!is.na(CCN) & CCN != ""]
+
+## if sample has duplicate CCNs, keep one row per CCN before merge
+sample_unique <- unique(sample, by = "CCN")
 
 ## ---------------------------
-## inspect first few rows
+## inner join rpt to analytical sample
 ## ---------------------------
-cat("\nFirst rows of RPT:\n")
+rpt <- merge(
+  rpt,
+  sample_unique,
+  by.x = "PRVDR_NUM",
+  by.y = "CCN",
+  all = FALSE
+)
+
+cat("Matched RPT rows after inner join:", nrow(rpt), "\n")
+cat("Unique matched report numbers:", uniqueN(rpt$RPT_REC_NUM), "\n")
+
+## ---------------------------
+## restrict nmrc and alpha to matched reports only
+## ---------------------------
+keep_rpt_rec_num <- unique(rpt$RPT_REC_NUM)
+
+nmrc  <- nmrc[RPT_REC_NUM %in% keep_rpt_rec_num]
+alpha <- alpha[RPT_REC_NUM %in% keep_rpt_rec_num]
+
+cat("NMRC rows after restriction:", nrow(nmrc), "\n")
+cat("ALPHA rows after restriction:", nrow(alpha), "\n")
+
+## ---------------------------
+## inspect
+## ---------------------------
+cat("\nFirst rows of matched RPT:\n")
 print(head(rpt))
 
-cat("\nFirst rows of NMRC:\n")
+cat("\nFirst rows of restricted NMRC:\n")
 print(head(nmrc))
 
-cat("\nFirst rows of ALPHA:\n")
+cat("\nFirst rows of restricted ALPHA:\n")
 print(head(alpha))
 
 ## ---------------------------
-## save cleaned versions
+## save cleaned/sample-restricted versions
 ## ---------------------------
 saveRDS(rpt,   file.path(intermediate_dir, "rpt_clean.rds"))
 saveRDS(nmrc,  file.path(intermediate_dir, "nmrc_clean.rds"))

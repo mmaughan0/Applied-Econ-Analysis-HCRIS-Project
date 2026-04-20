@@ -16,6 +16,10 @@ secrets.r
 intermediate/
 source/
 
+# but keep these specific source files tracked
+!source/analytical_sample.csv
+!source/State_Price_Estimation_ExAnte.csv
+
 # outputs
 output/
 results/
@@ -38,4 +42,4 @@ logs/
 *.sas7bdat
 *.parquet
 *.feather
-*.fst
+*.fst   
