@@ -9,15 +9,20 @@ DATA Downloads
 #########################################################
 
 
-#Go to the following website to download files - they are not on REPO!
+#1 Go to the following website to download files - they are not on REPO!
 https://www.cms.gov/data-research/statistics-trends-and-reports/cost-reports/hospital-2552-2010-form
-Scroll down to "Downloads" and click on Hospital 2010 Documentation
 
-You will find many of the files on this repo in there - only 3 you will not find that you need to input
+#2 Scroll down to :Cost Reports by Fiscal Year" on bottom left
+
+#3 On second page you will find "hospital-2010" link
+
+#4 This will automatically send zip file to your downloads. Open up file:
 
 HOSP10_2022_rpt – this is your master primary key is the cost report number, NOT the hospital provider number
 HOSP10_2022_alpha – all alphabetical variables tied to that cost report
 HOSP10_2022_nmrc – all numeric variables tied to that cost report
+
+#5 Put these in the source folder of the repo
 
 #######################################
 DATA from REPO
