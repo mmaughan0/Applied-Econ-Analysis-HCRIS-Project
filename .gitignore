@@ -14,11 +14,12 @@ secrets.r
 
 # ignore project data folders
 intermediate/
-source/
 
-# but keep these specific source files tracked
-!source/analytical_sample.csv
-!source/State_Price_Estimation_ExAnte.csv
+# ignore selected source files one by one
+source/HCRIS_DataDictionary.csv
+source/HOSP10_2022_alpha.csv
+source/HOSP10_2022_nmrc.csv
+source/HOSP10_2022_rpt.csv
 
 # outputs
 output/
@@ -42,4 +43,4 @@ logs/
 *.sas7bdat
 *.parquet
 *.feather
-*.fst   
+*.fst
